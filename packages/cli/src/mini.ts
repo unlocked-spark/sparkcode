@@ -24,6 +24,8 @@ export type MiniCommandInput = {
   tuiConfig?: MiniFrontendInput["tuiConfig"]
   config?: MiniFrontendInput["config"]
   paths: { home: string; state: string; log: string }
+  /** Replaces the OpenTUI footer with another output layer, such as the screen reader frontend. */
+  lifecycle?: MiniFrontendInput["lifecycle"]
 }
 
 type Model = MiniFrontendInput["model"]
@@ -125,6 +127,7 @@ export async function runMini(input: MiniCommandInput) {
         demo: input.demo,
         tuiConfig: input.tuiConfig,
         config: input.config,
+        lifecycle: input.lifecycle,
       })
     })
   } catch (error) {
@@ -191,7 +194,7 @@ export function mergeInput(piped: string | undefined, prompt: string | undefined
 }
 
 function validate(input: MiniCommandInput) {
-  validateMiniTerminal()
+  if (!input.lifecycle) validateMiniTerminal()
   if (input.replayLimit !== undefined && (!Number.isInteger(input.replayLimit) || input.replayLimit <= 0)) {
     fail("--replay-limit must be a positive integer")
   }

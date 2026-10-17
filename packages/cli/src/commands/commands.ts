@@ -373,6 +373,40 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
         demo: Flag.Boolean("demo").pipe(Flag.withDefault(false), Flag.withHidden),
       },
     }),
+    Spec.make("sr", {
+      description: "Start the screen reader interface",
+      params: {
+        ...ServerParams,
+        continue: Flag.Boolean("continue").pipe(
+          Flag.withAlias("c"),
+          Flag.withDescription("Continue the last session"),
+          Flag.withDefault(false),
+        ),
+        session: Flag.String("session").pipe(
+          Flag.withAlias("s"),
+          Flag.withDescription("Session ID to continue, or to create if it does not exist"),
+          Flag.optional,
+        ),
+        fork: Flag.Boolean("fork").pipe(
+          Flag.withDescription("Fork the session when continuing"),
+          Flag.withDefault(false),
+        ),
+        model: Flag.String("model").pipe(
+          Flag.withAlias("m"),
+          Flag.withDescription("Model to use in the format provider/model"),
+          Flag.optional,
+        ),
+        agent: Flag.String("agent").pipe(Flag.withDescription("Agent to use"), Flag.optional),
+        prompt: Flag.String("prompt").pipe(
+          Flag.withDescription("Prompt to send, then exit when the turn ends"),
+          Flag.optional,
+        ),
+        transcript: Flag.String("transcript").pipe(
+          Flag.withDescription("Append everything written to the terminal to this file"),
+          Flag.optional,
+        ),
+      },
+    }),
     Spec.make("run", {
       description: "Run OpenCode with a message",
       params: {

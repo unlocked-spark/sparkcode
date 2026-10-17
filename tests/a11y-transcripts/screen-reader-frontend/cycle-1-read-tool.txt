@@ -1,0 +1,11 @@
+system: Screen reader mode on via command.
+system: Starting work.
+system: Model: Big Pickle - OpenCode.
+you: Read the file packages/core/src/sparkcode.ts and tell me in one sentence what the constant is for. Use a markdown heading before your sentence.
+system: Session Investigating sparkcode.ts constant purpose.
+tool: Read packages/core/src/sparkcode.ts
+result: 13 lines
+assistant: Purpose of the constant
+SPARKCODE_UPSTREAM_VERSION pins the upstream OpenCode version this fork is based on, so outgoing requests report a version string the OpenCode Zen gateway accepts when serving its free models.
+system: Done.
+system: Session Investigating sparkcode.ts constant purpose saved. Goodbye.

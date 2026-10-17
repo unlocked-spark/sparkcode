@@ -19,6 +19,7 @@
     "./editor": "./src/editor.ts",
     "./mini": "./src/mini/index.ts",
     "./mini/tool": "./src/mini/tool.public.ts",
+    "./sr": "./src/sr/index.ts",
     "./model-preference": "./src/model-preference.ts",
     "./util/form": "./src/util/form.ts",
     "./logo": "./src/logo.ts",
