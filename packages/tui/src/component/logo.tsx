@@ -1,3 +1,4 @@
+import { SPARKCODE_TAGLINE } from "@opencode/util/sparkcode"
 import { RGBA, TextAttributes } from "@opentui/core"
 import { For, type JSX } from "solid-js"
 import { useTerminalDimensions } from "@opentui/solid"
@@ -73,6 +74,11 @@ export function Logo() {
             </box>
           )}
         </For>
+      )}
+      {dimensions().height < 12 ? null : (
+        <text fg={theme.text.muted} selectable={false}>
+          {SPARKCODE_TAGLINE}
+        </text>
       )}
     </box>
   )

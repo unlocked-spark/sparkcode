@@ -1,4 +1,5 @@
 /// <reference path="./audio.d.ts" />
+import { SPARKCODE_NAME } from "@opencode/util/sparkcode"
 import type {
   Attention,
   AttentionNotifyOptions,
@@ -32,7 +33,7 @@ type AttentionHost = Attention & {
   dispose(): void
 }
 
-const DEFAULT_TITLE = "OpenCode"
+const DEFAULT_TITLE = SPARKCODE_NAME
 const TITLE_LIMIT = 80
 const MESSAGE_LIMIT = 240
 const BUILTIN_SOUNDS: Record<AttentionSoundName, string> = {

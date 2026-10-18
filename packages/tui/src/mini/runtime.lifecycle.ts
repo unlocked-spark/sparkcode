@@ -8,6 +8,7 @@
 //
 // Also wires SIGINT so Ctrl-c clears a live prompt draft first, then falls
 // back to the usual two-press exit sequence through RunFooter.requestExit().
+import { SPARKCODE_NAME } from "@opencode/util/sparkcode"
 import path from "path"
 import {
   CliRenderEvents,
@@ -174,7 +175,7 @@ export async function createRuntimeLifecycle(input: LifecycleInput): Promise<Lif
   if (mono) renderer.on(CliRenderEvents.EXTERNAL_OUTPUT, monoSnapshot)
   const setTitle = (title?: string) => {
     if (input.host.platform !== "linux") return
-    if (!title || isFallbackTitle(title)) return renderer.setTerminalTitle("OpenCode")
+    if (!title || isFallbackTitle(title)) return renderer.setTerminalTitle(SPARKCODE_NAME)
     renderer.setTerminalTitle(`OC | ${title.length > 40 ? title.slice(0, 37) + "…" : title}`)
   }
   setTitle(input.sessionTitle)

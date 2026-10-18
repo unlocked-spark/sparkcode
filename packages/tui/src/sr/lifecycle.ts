@@ -1,3 +1,4 @@
+import { SPARKCODE_INTRO } from "@opencode/util/sparkcode"
 import type { Lifecycle, LifecycleInput } from "../mini/runtime.lifecycle"
 import type {
   FooterApi,
@@ -64,8 +65,8 @@ const MENU_LIMIT = 30
 
 function activationLine(activation: ActivationSource) {
   if (activation.source === "detection" && activation.reader)
-    return `Screen reader detected (${activation.reader}). Screen reader mode on via detection. Set OPENCODE_SCREEN_READER=0 to use the visual interface.`
-  return `Screen reader mode on via ${activation.source}.`
+    return `${SPARKCODE_INTRO}. Screen reader detected (${activation.reader}). Screen reader mode on via detection. Set OPENCODE_SCREEN_READER=0 to use the visual interface.`
+  return `${SPARKCODE_INTRO}. Screen reader mode on via ${activation.source}.`
 }
 
 function isTerminalInput(input: InputSource | TerminalInput): input is TerminalInput {
