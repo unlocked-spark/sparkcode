@@ -28,6 +28,8 @@ export type WriterOptions = {
   pacing?: Pacing
   tee?: (chunk: string) => void
   sleep?: (ms: number) => Promise<void>
+  /** Called around each write, so a visible prompt line can be ended first and restored after. */
+  around?: { before(): void; after(): void }
 }
 
 export type Writer = {
@@ -91,17 +93,21 @@ export function createWriter(options: WriterOptions): Writer {
         .filter((item) => item.trim() !== "")
       if (physical.length === 0) return chain
       return enqueue(async () => {
+        options.around?.before()
         for (const [index, item] of physical.entries()) {
           const rendered = index === 0 && line.label ? `${line.label}: ${item}` : item
           emit(rendered + eol)
           const delay = delayFor(rendered)
           if (delay > 0) await sleep(delay)
         }
+        options.around?.after()
       })
     },
     bell() {
       return enqueue(async () => {
+        options.around?.before()
         emit(BELL)
+        options.around?.after()
       })
     },
     drain() {

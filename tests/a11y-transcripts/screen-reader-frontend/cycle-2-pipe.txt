@@ -1,0 +1,10 @@
+system: Screen reader mode on via command.
+you: Reply with exactly the word OK and nothing else.
+you: Now reply with exactly the word FINE.
+system: Starting work.
+system: Model: Big Pickle - OpenCode.
+system: Session Request for OK.
+assistant: OK
+assistant: FINE
+system: Done.
+system: Session Request for OK saved. Goodbye.

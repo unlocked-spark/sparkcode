@@ -35,8 +35,12 @@ class MiniInputError extends Error {}
 export async function runMini(input: MiniCommandInput) {
   try {
     validate(input)
+    const pipe = input.lifecycle && !process.stdin.isTTY ? () => ({ stdin: process.stdin, cleanup() {} }) : undefined
     await usingInteractiveStdin(async (terminal) => {
-      const initialInput = mergeInput(process.stdin.isTTY ? undefined : await readStdin(), input.prompt)
+      const initialInput = mergeInput(
+        process.stdin.isTTY || input.lifecycle ? undefined : await readStdin(),
+        input.prompt,
+      )
       const frontendTask = import("@opencode/tui/mini")
       const directory = localDirectory()
       const connection = createMiniConnection(input.server)
@@ -129,7 +133,7 @@ export async function runMini(input: MiniCommandInput) {
         config: input.config,
         lifecycle: input.lifecycle,
       })
-    })
+    }, pipe)
   } catch (error) {
     if (error instanceof MiniInputError || (error instanceof Error && error.message === INTERACTIVE_INPUT_ERROR))
       fail(error.message)

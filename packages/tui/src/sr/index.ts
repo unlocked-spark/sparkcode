@@ -1,10 +1,14 @@
 export {
   createScreenReaderLifecycle,
   type ActivationSource,
-  type InputSource,
   type ScreenReaderLifecycleFactory,
   type ScreenReaderLifecycleOptions,
+  type SessionSummary,
 } from "./lifecycle"
+export { createTerminalInput, type InputSource, type Key, type TerminalInput } from "./input"
+export { createMenuQueue, type Menu, type MenuItem, type MenuQueue } from "./menu"
+export { helpLines, parseCommand } from "./commands"
+export { formMenus } from "./forms"
 export {
   SETTINGS_FILENAME,
   defaultSettings,

@@ -1,0 +1,13 @@
+system: Screen reader mode on via command.
+you: Reply with exactly the word OK and nothing else.
+system: Starting work.
+system: Model: Big Pickle - OpenCode.
+assistant: OK
+system: Done.
+system: Session: none
+system: Model: Big Pickle - OpenCode
+system: Agent: default
+system: Tokens: 11929
+system: State: idle
+system: Tools: off.
+system: Session ses_eb42781dcffeRBuPZjXXgDLKbY saved. Goodbye.
