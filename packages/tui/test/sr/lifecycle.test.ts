@@ -188,3 +188,16 @@ test("AC-043 a late notice that resolves after the session line is spoken at onc
   await quiet.footer.idle()
   expect(quiet.lines()).toHaveLength(2)
 })
+
+// AC-044: the resumed history ends with a paragraph that has no newline; it must still be spoken and kept for /last.
+test("AC-044 the end of a replay speaks the buffered tail instead of dropping it", async () => {
+  const d = await drive({ activation: { source: "command" }, sessionTitle: "Resumed" })
+  d.footer.append(textDelta("Earlier line.\n"))
+  d.footer.append(textDelta("Final answer without a newline"))
+  await d.lifecycle.resetForReplay()
+  await d.footer.idle()
+  expect(d.lines().slice(-2)).toEqual(["assistant: Earlier line.", "Final answer without a newline"])
+  d.submit("/last")
+  await d.footer.idle()
+  expect(d.lines().at(-1)).toBe("Final answer without a newline")
+})

@@ -11,7 +11,7 @@ import type {
   StreamCommit,
 } from "../mini/types"
 import { helpLines, parseCommand, type Command } from "./commands"
-import { formMenus } from "./forms"
+import { askForm } from "./forms"
 import { createTerminalInput, type InputSource, type TerminalInput } from "./input"
 import { createMenuQueue, type Menu, type MenuItem } from "./menu"
 import { createNarrator } from "./narration"
@@ -458,12 +458,14 @@ export function createScreenReaderLifecycle(options: ScreenReaderLifecycleOption
         void input.onFormCancel({ sessionID: request.sessionID, formID: request.id, location: request.location })
         say({ label: "system", text: "Question cancelled." })
       }
-      const menusForForm = formMenus(request, { reply: (reply) => void input.onFormReply(reply), cancel, say })
-      if (menusForForm.length === 0) {
-        void input.onFormCancel({ sessionID: request.sessionID, formID: request.id, location: request.location })
-        return
-      }
-      for (const menu of menusForForm) openMenu(menu)
+      const asked = askForm(request, {
+        open: openMenu,
+        reply: (reply) => void input.onFormReply(reply),
+        cancel,
+        say,
+        openExternal: (url) => import("@opencode/util/open").then((mod) => mod.openUrl(url)),
+      })
+      if (!asked) void input.onFormCancel({ sessionID: request.sessionID, formID: request.id, location: request.location })
     }
 
     const append = (commit: StreamCommit) => {
@@ -609,8 +611,11 @@ export function createScreenReaderLifecycle(options: ScreenReaderLifecycleOption
       onResize: () => () => {},
       refreshTheme: () => {},
       setTitle: announceSession,
+      // Called once the resumed history has been replayed: the last paragraph
+      // usually ends without a newline and is still buffered, so it is spoken
+      // here rather than dropped, which also keeps it available to /last.
       async resetForReplay() {
-        narrator.reset()
+        sayAll(narrator.flush())
         await writer.drain()
       },
       async close(exit) {

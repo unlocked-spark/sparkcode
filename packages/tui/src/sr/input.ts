@@ -93,10 +93,18 @@ export function createTerminalInput(options: TerminalInputOptions): TerminalInpu
     if (closed) return
     if (key?.name === "escape") return report("escape")
     if (!char || key?.ctrl || char.length !== 1 || char < " ") return
-    // readline has already inserted the character; offer it only when it is alone on the line.
-    if (rl.line !== char) return
-    if (![...singleKeyListeners].some((listener) => listener(char))) return
-    rl.write(null, { ctrl: true, name: "u" })
+    // Readline inserts the character from its own keypress listener. Whether
+    // that listener ran before or after this one depends on the terminal and
+    // the runtime, so the offer waits a microtask and then looks at the line:
+    // only a character alone on it is a single-key answer.
+    queueMicrotask(() => {
+      if (closed || rl.line !== char) return
+      if (![...singleKeyListeners].some((listener) => listener(char))) return
+      // Clear the whole draft, wherever the cursor is, so nothing of the answer
+      // is typed into the next prompt.
+      rl.write(null, { name: "end" })
+      rl.write(null, { ctrl: true, name: "u" })
+    })
   }
   const onSigint = () => report("ctrl-c")
 

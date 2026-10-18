@@ -101,13 +101,16 @@ export const runScreenReaderSession = Effect.fn("cli.sr.run")(function* (input: 
   let fork = input.fork ?? false
   let prompt = input.prompt
   let switched = false
+  // /tools, /thinking and /heartbeat save new settings; a lifecycle started
+  // after a session switch must begin from those, not from the ones loaded at startup.
+  let current = settings
   const notices = input.auto
     ? ["Automatic permission approval is not available in screen reader mode; you will be asked."]
     : []
   for (;;) {
     let switchTo: string | undefined
     const lifecycle = createScreenReaderLifecycle({
-      settings,
+      settings: current,
       activation: input.activation,
       tee: transcript ? (chunk) => void transcript.write(chunk) : undefined,
       terminal: Boolean(process.stdin.isTTY && process.stdout.isTTY),
@@ -120,7 +123,10 @@ export const runScreenReaderSession = Effect.fn("cli.sr.run")(function* (input: 
       onSwitch: (sessionID) => {
         switchTo = sessionID
       },
-      saveSettings: (next) => saveSettings(settingsFile, next),
+      saveSettings: (next) => {
+        current = next
+        return saveSettings(settingsFile, next)
+      },
     })
     yield* Effect.promise(() =>
       runMini({
