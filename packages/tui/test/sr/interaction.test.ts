@@ -260,9 +260,18 @@ test("AC-042 /model lists models as a numbered menu, filters by text and applies
   d.submit("2")
   await d.footer.idle()
   expect(d.modelSelections).toEqual([{ providerID: "anthropic", modelID: "claude-fable-5-1" }])
+  expect(d.lines().at(-1)).toBe("system: Model: Anthropic Claude Fable 5.1.")
+  d.submit("/status")
+  await d.footer.idle()
+  expect(d.lines()).toContain("system: Model: Anthropic Claude Fable 5.1")
+  d.submit("/model")
+  await d.footer.idle()
+  expect(d.lines()).toContain("2. Anthropic Claude Fable 5.1 (current)")
+  d.key("escape")
+  await d.footer.idle()
   d.submit("/model fable")
   await d.footer.idle()
-  expect(d.lines().at(-2)).toBe("1. Anthropic Claude Fable 5.1")
+  expect(d.lines().at(-2)).toBe("1. Anthropic Claude Fable 5.1 (current)")
   d.key("escape")
   await d.footer.idle()
   expect(d.lines().at(-1)).toBe("system: Cancelled.")
@@ -584,4 +593,23 @@ test("AC-044 the current session is left out of /sessions and a switched lifecyc
   e.lifecycle.setTitle("Other")
   await e.footer.idle()
   expect(e.lines()).toEqual(["system: Replaying session Other."])
+})
+
+test("AC-042 the model confirmation uses the label the runtime answers with", async () => {
+  const d = await drive({
+    activation: { source: "command" },
+    modelResult: (model) => ({ modelLabel: `${model.modelID} (thinking)` }),
+  })
+  d.footer.event({
+    type: "models",
+    providers: [{ id: "anthropic", name: "Anthropic", models: { "claude-fable-5-1": { name: "Claude Fable 5.1" } } }],
+  })
+  d.submit("/model")
+  await d.footer.idle()
+  d.submit("1")
+  await d.footer.idle()
+  expect(d.lines().at(-1)).toBe("system: Model: claude-fable-5-1 (thinking).")
+  d.submit("/status")
+  await d.footer.idle()
+  expect(d.lines()).toContain("system: Model: claude-fable-5-1 (thinking)")
 })

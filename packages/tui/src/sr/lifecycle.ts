@@ -289,11 +289,29 @@ export function createScreenReaderLifecycle(options: ScreenReaderLifecycleOption
         lines,
         items,
         freeText: false,
-        onAnswer: (value) => {
+        onAnswer: (value, item) => {
           const [providerID, ...rest] = value.split("/")
           const modelID = rest.join("/")
           if (!providerID || !modelID) return
-          void Promise.resolve(input.onModelSelect?.({ providerID, modelID })).catch(() => {})
+          const chosen = item?.label.replace(/ \(current\)$/, "") ?? value
+          // The runtime applies the choice and answers with the label it will
+          // use; it emits no model event for it, so the confirmation and the
+          // state behind /status are updated here.
+          const applied = (result: { modelLabel?: string } | void) => {
+            const label = result?.modelLabel ?? chosen
+            state.selection = { providerID, modelID }
+            if (label === state.lastModel) return
+            state.lastModel = label
+            say({ label: "system", text: `Model: ${label}.` })
+          }
+          const failed = () => say({ label: "error", text: `Could not switch to ${chosen}.` })
+          try {
+            const outcome = input.onModelSelect?.({ providerID, modelID })
+            if (outcome instanceof Promise) void outcome.then(applied, failed)
+            else applied(outcome)
+          } catch {
+            failed()
+          }
         },
         onCancel: () => say({ label: "system", text: "Cancelled." }),
       })

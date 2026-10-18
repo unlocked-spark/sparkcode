@@ -35,6 +35,8 @@ export type DriveOptions = {
   switched?: boolean
   notices?: string[]
   lateNotices?: Promise<string[]>
+  /** What the runtime answers to a model choice; the default answers nothing. */
+  modelResult?: (model: NonNullable<RunInput["model"]>) => { modelLabel: string } | undefined
 }
 
 export type Drive = {
@@ -180,7 +182,11 @@ export async function drive(options: DriveOptions): Promise<Drive> {
     onFormReply: (reply) => void forms.push(reply),
     onFormCancel: (cancel) => void cancels.push(cancel),
     onInterrupt: () => void counters.interrupts++,
-    onModelSelect: (model) => void modelSelections.push(model),
+    onModelSelect: (model) => {
+      modelSelections.push(model)
+      const result = options.modelResult?.(model)
+      return result ? { status: undefined, modelLabel: result.modelLabel, variant: undefined } : undefined
+    },
     onAgentSelect: (agent) => void agentSelections.push(agent),
     onQueuedPromptAction: async (action, inboxID) => void queuedActions.push({ action, inboxID }),
   }
