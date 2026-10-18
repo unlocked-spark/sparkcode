@@ -34,6 +34,7 @@ export type DriveOptions = {
   recordMarker?: boolean
   switched?: boolean
   notices?: string[]
+  lateNotices?: Promise<string[]>
 }
 
 export type Drive = {
@@ -152,6 +153,7 @@ export async function drive(options: DriveOptions): Promise<Drive> {
     exitWhenIdle: options.exitWhenIdle,
     switched: options.switched,
     notices: options.notices,
+    lateNotices: options.lateNotices,
     timers: options.timers,
     now: options.now,
     input: fake.input,

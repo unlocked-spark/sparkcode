@@ -149,3 +149,42 @@ test("notices are spoken right after the activation line", async () => {
     "system: Automatic permission approval is not available in screen reader mode; you will be asked.",
   ])
 })
+
+// AC-043: the update notice arrives from a network lookup and is spoken after the session line.
+test("AC-043 a late notice that resolves first waits for the session line", async () => {
+  let resolveLate!: (lines: string[]) => void
+  const late = new Promise<string[]>((resolve) => (resolveLate = resolve))
+  const d = await drive({ activation: { source: "command" }, sessionID: "", lateNotices: late })
+  resolveLate(["SparkCode 2.0.32-sparkcode.2 is available. Run sparkcode update after this session."])
+  await late
+  await d.footer.idle()
+  expect(d.lines()).toEqual([
+    "system: SparkCode, an accessibility fork of opencode. Screen reader mode on via command.",
+  ])
+  d.lifecycle.setTitle("Fix the bug")
+  await d.footer.idle()
+  expect(d.lines()).toEqual([
+    "system: SparkCode, an accessibility fork of opencode. Screen reader mode on via command.",
+    "system: Session Fix the bug.",
+    "system: SparkCode 2.0.32-sparkcode.2 is available. Run sparkcode update after this session.",
+  ])
+})
+
+test("AC-043 a late notice that resolves after the session line is spoken at once, and an empty one is silent", async () => {
+  let resolveLate!: (lines: string[]) => void
+  const late = new Promise<string[]>((resolve) => (resolveLate = resolve))
+  const d = await drive({ activation: { source: "command" }, sessionTitle: "Fix the bug", lateNotices: late })
+  expect(d.lines()).toEqual([
+    "system: SparkCode, an accessibility fork of opencode. Screen reader mode on via command.",
+    "system: Session Fix the bug.",
+  ])
+  resolveLate(["SparkCode 2.0.32-sparkcode.2 is available. Run sparkcode update after this session."])
+  await late
+  await d.footer.idle()
+  expect(d.lines().at(-1)).toBe(
+    "system: SparkCode 2.0.32-sparkcode.2 is available. Run sparkcode update after this session.",
+  )
+  const quiet = await drive({ activation: { source: "command" }, sessionTitle: "Other", lateNotices: Promise.resolve([]) })
+  await quiet.footer.idle()
+  expect(quiet.lines()).toHaveLength(2)
+})

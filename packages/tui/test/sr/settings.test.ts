@@ -14,6 +14,7 @@ test("AC-050 defaults match the spec", () => {
     delivery: { mode: "stream", lineDelayMs: 0, msPerChar: 0 },
     prompt: { marker: "> ", singleKeyAnswers: true },
     detection: "auto",
+    updates: "check",
   })
 })
 
@@ -43,4 +44,11 @@ test("AC-050 out of range numbers and unknown versions fall back to defaults", (
   expect(parseSettings({ delivery: { lineDelayMs: -1, msPerChar: 5000 } }).delivery).toEqual(defaultSettings().delivery)
   expect(parseSettings({ version: 2, tools: "full" })).toEqual(defaultSettings())
   expect(parseSettings({ version: 1, tools: "full" }).tools).toBe("full")
+})
+
+test("AC-043 updates setting defaults to check and accepts off", () => {
+  expect(defaultSettings().updates).toBe("check")
+  expect(parseSettings({ updates: "off" }).updates).toBe("off")
+  expect(parseSettings({ updates: "never" }).updates).toBe("check")
+  expect(parseSettings({ updates: 1 }).updates).toBe("check")
 })

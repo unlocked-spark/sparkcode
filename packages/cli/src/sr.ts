@@ -13,10 +13,13 @@ import {
   type SessionSummary,
 } from "@opencode/tui/sr"
 import { Global } from "@opencode/util/global"
+import { SPARKCODE_COMMAND, SPARKCODE_NAME } from "@opencode/util/sparkcode"
 import { Context, Effect, FileSystem, Option } from "effect"
 import { createWriteStream } from "node:fs"
 import path from "node:path"
 import { Config } from "./config"
+import { checkForUpdate } from "./sparkcode-update"
+import { OPENCODE_LOCAL, OPENCODE_VERSION } from "./version"
 import type { ServerConnection } from "./services/server-connection"
 
 export type ScreenReaderSessionInput = {
@@ -66,6 +69,14 @@ export const runScreenReaderSession = Effect.fn("cli.sr.run")(function* (input: 
   const runServicePromise = Effect.runPromiseWith(Context.make(FileSystem.FileSystem, fileSystem))
   const settingsFile = yield* settingsPath()
   const settings = input.settings ?? (yield* Effect.promise(() => loadSettings(settingsFile)))
+  // One feed read at startup in release builds (AC-043). The lifecycle speaks
+  // the result after the session line, so a slow network never delays startup.
+  const updateNotice: Promise<string[]> =
+    OPENCODE_LOCAL || settings.updates === "off"
+      ? Promise.resolve([])
+      : checkForUpdate({ running: OPENCODE_VERSION }).then((newer) =>
+          newer ? [`${SPARKCODE_NAME} ${newer} is available. Run ${SPARKCODE_COMMAND} update after this session.`] : [],
+        )
   const transcript = input.transcript ? createWriteStream(input.transcript, { flags: "a" }) : undefined
   transcript?.on("error", (error) => {
     process.stderr.write(`error: transcript ${input.transcript}: ${error.message}\n`)
@@ -90,6 +101,9 @@ export const runScreenReaderSession = Effect.fn("cli.sr.run")(function* (input: 
   let fork = input.fork ?? false
   let prompt = input.prompt
   let switched = false
+  const notices = input.auto
+    ? ["Automatic permission approval is not available in screen reader mode; you will be asked."]
+    : []
   for (;;) {
     let switchTo: string | undefined
     const lifecycle = createScreenReaderLifecycle({
@@ -99,9 +113,9 @@ export const runScreenReaderSession = Effect.fn("cli.sr.run")(function* (input: 
       terminal: Boolean(process.stdin.isTTY && process.stdout.isTTY),
       exitWhenIdle: input.oneShot === true && prompt !== undefined,
       switched,
-      notices: input.auto
-        ? ["Automatic permission approval is not available in screen reader mode; you will be asked."]
-        : [],
+      // Notices belong to the first session of this process, not to every switch.
+      notices: switched ? [] : notices,
+      lateNotices: switched ? undefined : updateNotice,
       sessions,
       onSwitch: (sessionID) => {
         switchTo = sessionID

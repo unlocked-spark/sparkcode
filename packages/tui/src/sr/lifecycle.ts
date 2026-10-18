@@ -49,6 +49,11 @@ export type ScreenReaderLifecycleOptions = {
   switched?: boolean
   /** Spoken once after the activation line, for example an unsupported flag. */
   notices?: string[]
+  /**
+   * Lines that arrive later, such as the update notice (AC-043): spoken after
+   * the session line, so a slow lookup never delays the first spoken words.
+   */
+  lateNotices?: Promise<string[]>
   sessions?: { list(): Promise<SessionSummary[]> }
   /** The user chose another session; the caller restarts the runtime with it. */
   onSwitch?: (sessionID: string) => void
@@ -570,13 +575,29 @@ export function createScreenReaderLifecycle(options: ScreenReaderLifecycleOption
 
     // The runtime builds the lifecycle before the session is resolved, so the
     // title usually arrives later through setTitle; announce it once, whenever it comes.
+    // Late notices wait for the session line when it has not been spoken yet.
+    let pendingNotices: string[] | undefined
+    const sayLate = (lines: string[]) => {
+      for (const line of lines) say({ label: "system", text: line })
+    }
     const announceSession = (title: string | undefined) => {
       const name = title?.trim()
       if (!name || name === state.session) return
       const first = state.session === undefined
       state.session = name
       say({ label: "system", text: options.switched && first ? `Replaying session ${name}.` : `Session ${name}.` })
+      if (first && pendingNotices) {
+        sayLate(pendingNotices)
+        pendingNotices = undefined
+      }
     }
+    options.lateNotices
+      ?.then((lines) => {
+        if (state.exited || lines.length === 0) return
+        if (state.session === undefined) pendingNotices = lines
+        else sayLate(lines)
+      })
+      .catch(() => {})
 
     if (!options.switched) say({ label: "system", text: activationLine(options.activation) })
     for (const notice of options.notices ?? []) say({ label: "system", text: notice })

@@ -320,7 +320,7 @@ it.live("Homebrew Core installs check and upgrade the Core formula", () =>
     expect(yield* test.updater.latest("npm")).toBe("2.3.4")
     expect(test.requests).toEqual([
       "https://formulae.brew.sh/api/formula/opencode.json",
-      "https://opencode.ai/update/api/local/cli/npm?current=local",
+      "https://sparkcode.unlockedspark.org/update/api/local/cli/npm?current=local",
     ])
   }),
 )
@@ -333,8 +333,8 @@ it.live("Homebrew Core installs check and upgrade the Core formula", () =>
       yield* test.updater.upgrade("brew", "2.3.4")
       expect(test.commands).toEqual([["brew", "upgrade", `anomalyco/tap/${formula}`]])
       expect(test.requests).toEqual([
-        "https://opencode.ai/update/api/local/cli/homebrew?current=local",
-        "https://opencode.ai/update/api/local/cli/homebrew?current=local",
+        "https://sparkcode.unlockedspark.org/update/api/local/cli/homebrew?current=local",
+        "https://sparkcode.unlockedspark.org/update/api/local/cli/homebrew?current=local",
       ])
     }),
   )

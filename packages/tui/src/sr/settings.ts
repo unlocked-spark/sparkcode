@@ -9,6 +9,8 @@ export type ScreenReaderSettings = {
   delivery: { mode: "stream" | "whole"; lineDelayMs: number; msPerChar: number }
   prompt: { marker: string; singleKeyAnswers: boolean }
   detection: "auto" | "off"
+  /** Whether the frontend asks the version feed once at startup (AC-043). */
+  updates: "check" | "off"
 }
 
 export const SETTINGS_FILENAME = "screen-reader.json"
@@ -22,6 +24,7 @@ export function defaultSettings(): ScreenReaderSettings {
     delivery: { mode: "stream", lineDelayMs: 0, msPerChar: 0 },
     prompt: { marker: "> ", singleKeyAnswers: true },
     detection: "auto",
+    updates: "check",
   }
 }
 
@@ -77,6 +80,7 @@ export function parseSettings(raw: Json | undefined): ScreenReaderSettings {
       singleKeyAnswers: flag(prompt?.singleKeyAnswers, base.prompt.singleKeyAnswers),
     },
     detection: oneOf(root.detection, ["auto", "off"], base.detection),
+    updates: oneOf(root.updates, ["check", "off"], base.updates),
   }
 }
 

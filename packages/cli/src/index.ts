@@ -27,7 +27,7 @@ if (process.env.OPENCODE_SSH_ASKPASS_PORT) {
 
 const Handlers = Runtime.handlers(Commands, {
   $: () => import("./commands/handlers/default"),
-  upgrade: () => import("./commands/handlers/upgrade"),
+  upgrade: () => import("./commands/handlers/sparkcode-upgrade"),
   uninstall: () => import("./commands/handlers/uninstall"),
   acp: () => import("./commands/handlers/acp"),
   api: () => import("./commands/handlers/api"),

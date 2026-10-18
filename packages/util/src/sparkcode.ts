@@ -18,3 +18,14 @@ export const SPARKCODE_COMMAND = "sparkcode"
 /** Always shown next to the name: the fork condition and the honest description. */
 export const SPARKCODE_TAGLINE = "an accessibility fork of opencode"
 export const SPARKCODE_INTRO = `${SPARKCODE_NAME}, ${SPARKCODE_TAGLINE}`
+
+/** The product site. The installer, the version feed and the upstream-compatible update API live under it. */
+export const SPARKCODE_SITE = "https://sparkcode.unlockedspark.org"
+/** Base of the feed path upstream's background update check builds: `<base>/<channel>/<artifact>/npm`. */
+export const SPARKCODE_UPDATE_API = `${SPARKCODE_SITE}/update/api`
+/** The version feed read by `sparkcode update`, the installer and the screen reader startup notice. */
+export const SPARKCODE_FEED_URL = `${SPARKCODE_SITE}/update/sparkcode.json`
+/** The Windows installer, downloaded and run by `sparkcode update`. */
+export const SPARKCODE_INSTALLER_URL = `${SPARKCODE_SITE}/install.ps1`
+/** Public repository; releases hang off it. */
+export const SPARKCODE_REPOSITORY = "https://github.com/unlocked-spark/sparkcode"
