@@ -55,6 +55,10 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
       Flag.optional,
     ),
     prompt: Flag.String("prompt").pipe(Flag.withDescription("Prompt to use"), Flag.optional),
+    screenReader: Flag.Boolean("screen-reader").pipe(
+      Flag.withDescription("Use the screen reader interface instead of the visual one"),
+      Flag.withDefault(false),
+    ),
   },
   commands: [
     Spec.make("upgrade", {

@@ -9,6 +9,7 @@ export { createTerminalInput, type InputSource, type Key, type TerminalInput } f
 export { createMenuQueue, type Menu, type MenuItem, type MenuQueue } from "./menu"
 export { helpLines, parseCommand } from "./commands"
 export { formMenus } from "./forms"
+export { detectScreenReader, resolveActivation, type ScreenReaderName } from "./detect"
 export {
   SETTINGS_FILENAME,
   defaultSettings,

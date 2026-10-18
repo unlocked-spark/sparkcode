@@ -15,6 +15,7 @@ import { Service } from "@opencode/client/effect/service"
 import { OpenCode } from "@opencode/client/promise"
 import { findSession } from "../../session-target"
 import { errorMessage } from "../../util/error"
+import { ScreenReaderActivation, runScreenReaderSession } from "../../sr"
 
 export default Runtime.handler(Commands, (input) =>
   Effect.gen(function* () {
@@ -50,6 +51,11 @@ export default Runtime.handler(Commands, (input) =>
         Effect.promise(() => preflight.fail("OpenCode update could not start the new background service")),
       ),
     )
+    const reader = yield* ScreenReaderActivation.resolve(input.screenReader)
+    if (reader.activation)
+      return yield* runScreenReaderSession(
+        ScreenReaderActivation.input(input, server, { ...reader, activation: reader.activation }, () => preflight.finish()),
+      )
     const session = Option.getOrUndefined(input.session)
     // A missing --session ID becomes the ID of the session the first prompt creates.
     const sessionExists =

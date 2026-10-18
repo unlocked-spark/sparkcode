@@ -1,0 +1,7 @@
+system: Screen reader mode on via env.
+> system: Starting work.
+system: Model: Big Pickle - OpenCode.
+you: Reply with exactly the word OK and nothing else.
+assistant: OK
+system: Done.
+system: Session ses_eb16d253effeSjUe6W89JO4vqR saved. Goodbye.

@@ -33,6 +33,7 @@ export type DriveOptions = {
   /** Push the prompt marker into `writes` so ordering can be asserted. */
   recordMarker?: boolean
   switched?: boolean
+  notices?: string[]
 }
 
 export type Drive = {
@@ -150,6 +151,7 @@ export async function drive(options: DriveOptions): Promise<Drive> {
     eol: "\n",
     exitWhenIdle: options.exitWhenIdle,
     switched: options.switched,
+    notices: options.notices,
     timers: options.timers,
     now: options.now,
     input: fake.input,

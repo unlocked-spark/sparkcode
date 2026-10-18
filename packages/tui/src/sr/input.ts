@@ -51,6 +51,8 @@ export function createTerminalInput(options: TerminalInputOptions): TerminalInpu
   const singleKeyListeners = new Set<(char: string) => boolean>()
   const endListeners = new Set<() => void>()
   let shown = false
+  // The marker was written and nothing has ended that line yet.
+  let open = false
   let closed = false
 
   const output = new Writable({
@@ -71,6 +73,7 @@ export function createTerminalInput(options: TerminalInputOptions): TerminalInpu
 
   rl.on("line", (line) => {
     shown = false
+    open = false
     for (const listener of [...lineListeners]) listener(line)
   })
   const ended = () => {
@@ -118,16 +121,20 @@ export function createTerminalInput(options: TerminalInputOptions): TerminalInpu
       shown = show
       if (!terminal) return
       rl.setPrompt(show ? options.marker : "")
-      if (show) rl.prompt(true)
+      if (!show) return
+      rl.prompt(true)
+      open = true
     },
     typing: () => !closed && terminal && rl.line.length > 0,
     beforeWrite() {
-      if (!terminal || closed || !shown) return
+      if (!terminal || closed || !open) return
       options.stdout.write("\n")
+      open = false
     },
     afterWrite() {
       if (!terminal || closed || !shown) return
       rl.prompt(true)
+      open = true
     },
     close() {
       if (closed) return

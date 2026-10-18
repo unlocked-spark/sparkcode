@@ -38,7 +38,9 @@ test("TC-009 a full turn is written as labelled, append-only lines with Done and
 
 test("AC-005 the first line names the activation source and the detected reader", async () => {
   const d = await drive({ activation: { source: "detection", reader: "NVDA" } })
-  expect(d.writes[0]).toBe("system: Screen reader detected (NVDA). Screen reader mode on via detection.\n")
+  expect(d.writes[0]).toBe(
+    "system: Screen reader detected (NVDA). Screen reader mode on via detection. Set OPENCODE_SCREEN_READER=0 to use the visual interface.\n",
+  )
 })
 
 test("AC-010 the lifecycle never touches the renderer surface", async () => {
@@ -130,4 +132,15 @@ test("AC-035 close is idempotent and says Goodbye alone when no session was ever
   await d.lifecycle.close({ showExit: false })
   await d.lifecycle.close({ showExit: false })
   expect(d.lines().filter((line) => line.includes("Goodbye"))).toEqual(["system: Goodbye."])
+})
+
+test("notices are spoken right after the activation line", async () => {
+  const d = await drive({
+    activation: { source: "flag" },
+    notices: ["Automatic permission approval is not available in screen reader mode; you will be asked."],
+  })
+  expect(d.lines().slice(0, 2)).toEqual([
+    "system: Screen reader mode on via flag.",
+    "system: Automatic permission approval is not available in screen reader mode; you will be asked.",
+  ])
 })

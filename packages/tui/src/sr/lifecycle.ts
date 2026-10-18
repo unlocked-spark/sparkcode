@@ -46,6 +46,8 @@ export type ScreenReaderLifecycleOptions = {
   exitWhenIdle?: boolean
   /** This lifecycle continues a session the user switched to; announce the replay, not the activation. */
   switched?: boolean
+  /** Spoken once after the activation line, for example an unsupported flag. */
+  notices?: string[]
   sessions?: { list(): Promise<SessionSummary[]> }
   /** The user chose another session; the caller restarts the runtime with it. */
   onSwitch?: (sessionID: string) => void
@@ -62,7 +64,7 @@ const MENU_LIMIT = 30
 
 function activationLine(activation: ActivationSource) {
   if (activation.source === "detection" && activation.reader)
-    return `Screen reader detected (${activation.reader}). Screen reader mode on via detection.`
+    return `Screen reader detected (${activation.reader}). Screen reader mode on via detection. Set OPENCODE_SCREEN_READER=0 to use the visual interface.`
   return `Screen reader mode on via ${activation.source}.`
 }
 
@@ -576,6 +578,7 @@ export function createScreenReaderLifecycle(options: ScreenReaderLifecycleOption
     }
 
     if (!options.switched) say({ label: "system", text: activationLine(options.activation) })
+    for (const notice of options.notices ?? []) say({ label: "system", text: notice })
     announceSession(input.sessionTitle || input.sessionID)
     showPrompt()
 
