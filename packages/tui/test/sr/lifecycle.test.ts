@@ -20,9 +20,9 @@ test("TC-009 a full turn is written as labelled, append-only lines with Done and
     expect(chunk.endsWith("\n")).toBe(true)
     expect(chunk.slice(0, -1)).not.toContain("\n")
   }
-  expect(d.writes[0]).toBe("system: Sparkcode, an accessibility fork of opencode. Screen reader mode on via command.\n")
+  expect(d.writes[0]).toBe("system: SparkCode, an accessibility fork of opencode. Screen reader mode on via command.\n")
   expect(d.lines()).toEqual([
-    "system: Sparkcode, an accessibility fork of opencode. Screen reader mode on via command.",
+    "system: SparkCode, an accessibility fork of opencode. Screen reader mode on via command.",
     "system: Session Fix the bug.",
     "system: Starting work.",
     "you: fix it",
@@ -39,7 +39,7 @@ test("TC-009 a full turn is written as labelled, append-only lines with Done and
 test("AC-005 the first line names the activation source and the detected reader", async () => {
   const d = await drive({ activation: { source: "detection", reader: "NVDA" } })
   expect(d.writes[0]).toBe(
-    "system: Sparkcode, an accessibility fork of opencode. Screen reader detected (NVDA). Screen reader mode on via detection. Set OPENCODE_SCREEN_READER=0 to use the visual interface.\n",
+    "system: SparkCode, an accessibility fork of opencode. Screen reader detected (NVDA). Screen reader mode on via detection. Set OPENCODE_SCREEN_READER=0 to use the visual interface.\n",
   )
 })
 
@@ -120,14 +120,14 @@ test("exitWhenIdle closes the footer after the first turn ends", async () => {
 test("the session is announced once from setTitle when the runtime had no title at construction", async () => {
   const d = await drive({ activation: { source: "command" }, sessionID: "" })
   expect(d.lines()).toEqual([
-    "system: Sparkcode, an accessibility fork of opencode. Screen reader mode on via command.",
+    "system: SparkCode, an accessibility fork of opencode. Screen reader mode on via command.",
   ])
   d.lifecycle.setTitle("Fix the bug")
   d.lifecycle.setTitle("Fix the bug")
   d.lifecycle.setTitle("")
   await d.footer.idle()
   expect(d.lines()).toEqual([
-    "system: Sparkcode, an accessibility fork of opencode. Screen reader mode on via command.",
+    "system: SparkCode, an accessibility fork of opencode. Screen reader mode on via command.",
     "system: Session Fix the bug.",
   ])
 })
@@ -145,7 +145,7 @@ test("notices are spoken right after the activation line", async () => {
     notices: ["Automatic permission approval is not available in screen reader mode; you will be asked."],
   })
   expect(d.lines().slice(0, 2)).toEqual([
-    "system: Sparkcode, an accessibility fork of opencode. Screen reader mode on via flag.",
+    "system: SparkCode, an accessibility fork of opencode. Screen reader mode on via flag.",
     "system: Automatic permission approval is not available in screen reader mode; you will be asked.",
   ])
 })

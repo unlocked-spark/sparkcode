@@ -42,7 +42,7 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
     ...ServerParams,
     ...PermissionParams,
     directory: Argument.String("directory").pipe(
-      Argument.withDescription("Directory to start Sparkcode in"),
+      Argument.withDescription("Directory to start SparkCode in"),
       Argument.optional,
     ),
     continue: Flag.Boolean("continue").pipe(
@@ -63,7 +63,7 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
   },
   commands: [
     Spec.make("upgrade", {
-      description: "Upgrade Sparkcode to the latest or a specific version",
+      description: "Upgrade SparkCode to the latest or a specific version",
       aliases: ["update"],
       params: {
         target: Argument.String("target").pipe(
@@ -78,7 +78,7 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
       },
     }),
     Spec.make("uninstall", {
-      description: "Uninstall Sparkcode, keeping session data, configuration, and state",
+      description: "Uninstall SparkCode, keeping session data, configuration, and state",
       params: {
         dryRun: Flag.Boolean("dry-run").pipe(
           Flag.withDescription("Show what would be removed without removing"),
@@ -413,7 +413,7 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
       },
     }),
     Spec.make("run", {
-      description: "Run Sparkcode with a message",
+      description: "Run SparkCode with a message",
       params: {
         ...ServerParams,
         message: Argument.String("message").pipe(

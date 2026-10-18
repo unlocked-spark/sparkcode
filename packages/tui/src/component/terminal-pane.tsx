@@ -240,7 +240,7 @@ export function TerminalPane(props: {
       }
       if (message.type !== "attached") return
       if (!("inputProtocol" in message) || message.inputProtocol !== 1) {
-        setFailure("Persistent terminal server is out of date; restart Sparkcode")
+        setFailure("Persistent terminal server is out of date; restart SparkCode")
         next.close()
         return
       }
