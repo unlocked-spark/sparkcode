@@ -50,8 +50,9 @@ export type ScreenReaderLifecycleOptions = {
   /** Spoken once after the activation line, for example an unsupported flag. */
   notices?: string[]
   /**
-   * Lines that arrive later, such as the update notice (AC-043): spoken after
-   * the session line, so a slow lookup never delays the first spoken words.
+   * Lines that arrive later, such as the update notice (AC-043): spoken as soon
+   * as they are known, so a slow lookup never delays the first spoken words and
+   * a user who leaves before the first prompt still hears them.
    */
   lateNotices?: Promise<string[]>
   sessions?: { list(): Promise<SessionSummary[]> }
@@ -603,27 +604,19 @@ export function createScreenReaderLifecycle(options: ScreenReaderLifecycleOption
 
     // The runtime builds the lifecycle before the session is resolved, so the
     // title usually arrives later through setTitle; announce it once, whenever it comes.
-    // Late notices wait for the session line when it has not been spoken yet.
-    let pendingNotices: string[] | undefined
-    const sayLate = (lines: string[]) => {
-      for (const line of lines) say({ label: "system", text: line })
-    }
     const announceSession = (title: string | undefined) => {
       const name = title?.trim()
       if (!name || name === state.session) return
       const first = state.session === undefined
       state.session = name
       say({ label: "system", text: options.switched && first ? `Replaying session ${name}.` : `Session ${name}.` })
-      if (first && pendingNotices) {
-        sayLate(pendingNotices)
-        pendingNotices = undefined
-      }
     }
+    // The session line usually arrives only after the first prompt, so a notice
+    // that waited for it was never heard by someone who looked around and left.
     options.lateNotices
       ?.then((lines) => {
-        if (state.exited || lines.length === 0) return
-        if (state.session === undefined) pendingNotices = lines
-        else sayLate(lines)
+        if (state.exited) return
+        for (const line of lines) say({ label: "system", text: line })
       })
       .catch(() => {})
 
