@@ -107,14 +107,18 @@ export const runScreenReaderSession = Effect.fn("cli.sr.run")(function* (input: 
   const notices = input.auto
     ? ["Automatic permission approval is not available in screen reader mode; you will be asked."]
     : []
+  const terminal = Boolean(process.stdin.isTTY && process.stdout.isTTY)
   for (;;) {
     let switchTo: string | undefined
     const lifecycle = createScreenReaderLifecycle({
       settings: current,
       activation: input.activation,
       tee: transcript ? (chunk) => void transcript.write(chunk) : undefined,
-      terminal: Boolean(process.stdin.isTTY && process.stdout.isTTY),
-      exitWhenIdle: input.oneShot === true && prompt !== undefined,
+      terminal,
+      // A prompt given to `sr`, or to the default command on a pipe, is answered
+      // once and the process ends; on a pipe the end of input would otherwise
+      // close the session before the first turn even started.
+      exitWhenIdle: prompt !== undefined && (input.oneShot === true || !terminal),
       switched,
       // Notices belong to the first session of this process, not to every switch.
       notices: switched ? [] : notices,
