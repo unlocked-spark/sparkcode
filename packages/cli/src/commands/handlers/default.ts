@@ -4,7 +4,7 @@ import { run } from "@opencode/tui"
 import { Commands } from "../commands"
 import { Runtime } from "../../framework/runtime"
 import { Config } from "../../config"
-import { Context, Effect, FileSystem, Option, Queue, Schedule, Semaphore } from "effect"
+import { Context, Effect, Fiber, FileSystem, Option, Queue, Schedule, Semaphore } from "effect"
 import { ServerConnection } from "../../services/server-connection"
 import { Updater } from "../../services/updater"
 import { UpdatePreflight } from "../../services/update-preflight"
@@ -24,6 +24,9 @@ export default Runtime.handler(Commands, (input) =>
     if (requestedDirectory !== undefined) process.chdir(requestedDirectory)
     const preflight = UpdatePreflight.make()
     yield* Effect.addFinalizer(() => Effect.promise(() => preflight.close()))
+    // Screen reader detection runs a process listing that can take seconds on
+    // Windows; it overlaps the server connection instead of following it.
+    const readerLookup = yield* Effect.forkScoped(ScreenReaderActivation.resolve(input.screenReader))
     const serviceStarts = yield* Queue.unbounded<{
       readonly reason: "missing" | "version-mismatch"
       readonly previousVersion?: string
@@ -51,7 +54,7 @@ export default Runtime.handler(Commands, (input) =>
         Effect.promise(() => preflight.fail("OpenCode update could not start the new background service")),
       ),
     )
-    const reader = yield* ScreenReaderActivation.resolve(input.screenReader)
+    const reader = yield* Fiber.join(readerLookup)
     if (reader.activation)
       return yield* runScreenReaderSession(
         ScreenReaderActivation.input(input, server, { ...reader, activation: reader.activation }, () => preflight.finish()),

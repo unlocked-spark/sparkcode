@@ -11,7 +11,9 @@ export type DetectOptions = {
   timeoutMs?: number
 }
 
-const DEFAULT_TIMEOUT_MS = 500
+// tasklist regularly needs one to two seconds on Windows; half a second made a
+// running NVDA look absent and started the visual interface (seen 2026-10-24).
+const DEFAULT_TIMEOUT_MS = 3000
 
 const readers: ReadonlyArray<readonly [image: string, name: ScreenReaderName]> = [
   ["nvda.exe", "NVDA"],
@@ -52,7 +54,8 @@ function imageNames(output: string) {
 }
 
 // Windows only in v1 (AC-004): a running nvda.exe or jfw.exe means a screen
-// reader user. The lookup is bounded so startup never waits on it (AC-003).
+// reader user. The lookup is bounded (AC-003) and the default command runs it
+// alongside the server connection, so it rarely adds anything to startup.
 export async function detectScreenReader(options: DetectOptions = {}): Promise<ScreenReaderName | undefined> {
   const platform = options.platform ?? process.platform
   if (platform !== "win32") return undefined
