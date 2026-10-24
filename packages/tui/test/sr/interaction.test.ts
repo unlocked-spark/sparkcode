@@ -360,17 +360,17 @@ test("AC-046 /help, /status and /last write their lines", async () => {
 test("AC-047 /tools, /thinking and /heartbeat change, persist and confirm; bad values explain", async () => {
   const d = await drive({ activation: { source: "command" } })
   d.submit("/tools full")
-  d.submit("/thinking on")
+  d.submit("/thinking off")
   d.submit("/heartbeat 30")
   d.submit("/tools loud")
   await d.footer.idle()
   expect(d.saved.map((item) => [item.tools, item.thinking, item.heartbeat.seconds])).toEqual([
-    ["full", "off", 15],
     ["full", "on", 15],
-    ["full", "on", 30],
+    ["full", "off", 15],
+    ["full", "off", 30],
   ])
   expect(d.lines()).toContain("system: Tools: full.")
-  expect(d.lines()).toContain("system: Thinking: on.")
+  expect(d.lines()).toContain("system: Thinking: off.")
   expect(d.lines()).toContain("system: Heartbeat: 30 seconds.")
   expect(d.lines().at(-1)).toBe("system: Usage: /tools off|brief|full")
 })

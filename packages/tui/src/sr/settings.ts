@@ -19,7 +19,7 @@ export function defaultSettings(): ScreenReaderSettings {
   return {
     version: 1,
     tools: "brief",
-    thinking: "off",
+    thinking: "on",
     heartbeat: { seconds: 15 },
     delivery: { mode: "stream", lineDelayMs: 0, msPerChar: 0 },
     prompt: { marker: "> ", singleKeyAnswers: true },
