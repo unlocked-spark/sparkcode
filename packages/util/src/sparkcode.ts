@@ -9,7 +9,7 @@
  * version stays untouched everywhere else, including the service health response that the client
  * compares against its registration file.
  */
-export const SPARKCODE_UPSTREAM_VERSION = "2.0.32"
+export const SPARKCODE_UPSTREAM_VERSION = "2.1.4"
 
 /** How the product names itself in every user-facing place. */
 export const SPARKCODE_NAME = "SparkCode"
