@@ -170,6 +170,8 @@ test("AC-045 a second permission waits until the first is answered, and a prompt
   await d.footer.idle()
   expect(d.lines().filter((line) => line.startsWith("permission:"))).toHaveLength(2)
   d.footer.event({ type: "stream.view", view: { type: "prompt" } })
+  await d.footer.idle()
+  expect(d.lines().at(-1)).toBe("system: Permission request withdrawn.")
   d.submit("y")
   await d.footer.idle()
   expect(d.permissions).toHaveLength(1)

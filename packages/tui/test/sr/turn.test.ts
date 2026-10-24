@@ -30,7 +30,7 @@ function fakeTimers() {
   }
 }
 
-function harness(heartbeatSeconds = 15, typing = () => false) {
+function harness(heartbeatSeconds = 15, typing = () => false, waiting = () => false) {
   const lines: TranscriptLine[] = []
   const bells: number[] = []
   const flushes: number[] = []
@@ -41,6 +41,7 @@ function harness(heartbeatSeconds = 15, typing = () => false) {
     flush: () => void flushes.push(1),
     heartbeatSeconds,
     isTyping: typing,
+    isWaiting: waiting,
     timers: clock.timers,
   })
   return { lines, bells, flushes, clock, turn }
@@ -131,4 +132,16 @@ test("AC-033 interrupted writes Interrupted. and ends the turn without Done", ()
   expect(h.turn.running).toBe(false)
   h.clock.advance(60_000)
   expect(h.lines).toHaveLength(2)
+})
+
+test("AC-024 the heartbeat is silent while a question is open and resumes afterwards", () => {
+  let waiting = false
+  const h = harness(15, () => false, () => waiting)
+  h.turn.send()
+  waiting = true
+  h.clock.advance(30_000)
+  expect(h.lines).toHaveLength(1)
+  waiting = false
+  h.clock.advance(15_000)
+  expect(h.lines[1]).toEqual({ label: "system", text: "Still working." })
 })

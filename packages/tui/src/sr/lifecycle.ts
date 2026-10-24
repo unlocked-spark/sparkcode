@@ -209,6 +209,7 @@ export function createScreenReaderLifecycle(options: ScreenReaderLifecycleOption
       flush: () => sayAll(narrator.flush()),
       heartbeatSeconds: settings.heartbeat.seconds,
       isTyping: () => terminal.typing?.() ?? false,
+      isWaiting: () => menus.active !== undefined,
       timers: options.timers,
     })
 
@@ -541,7 +542,14 @@ export function createScreenReaderLifecycle(options: ScreenReaderLifecycleOption
         case "stream.view":
           if (next.view.type === "permission") permissionView(next.view)
           else if (next.view.type === "form") formView(next.view)
-          else menus.dismiss((menu) => menu.kind === "permission" || menu.kind === "question")
+          else {
+            // The server no longer waits for the answer (a timeout, or another
+            // client answered): say so, or the user keeps trying to answer.
+            const withdrawn = menus.active?.kind
+            menus.dismiss((menu) => menu.kind === "permission" || menu.kind === "question")
+            if (withdrawn === "permission") say({ label: "system", text: "Permission request withdrawn." })
+            else if (withdrawn === "question") say({ label: "system", text: "Question withdrawn." })
+          }
           if (!menus.active) showPrompt()
           return
         default:

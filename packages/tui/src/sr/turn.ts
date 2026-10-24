@@ -15,6 +15,8 @@ export type TurnSignalsInput = {
   heartbeatSeconds: number
   /** The heartbeat stays quiet while the user is typing, so it never breaks their line. */
   isTyping?: () => boolean
+  /** A question or permission is open: the model waits for the user, so the heartbeat stays quiet. */
+  isWaiting?: () => boolean
   timers?: Timers
 }
 
@@ -56,7 +58,7 @@ export function createTurnSignals(input: TurnSignalsInput): TurnSignals {
   const tick = () => {
     timer = undefined
     if (!running) return
-    if (!input.isTyping?.()) input.emit({ label: "system", text: "Still working." })
+    if (!input.isTyping?.() && !input.isWaiting?.()) input.emit({ label: "system", text: "Still working." })
     schedule()
   }
 
